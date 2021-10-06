@@ -1,3 +1,4 @@
+from . import variables as v
 import numpy as np
 import cv2
 
@@ -34,7 +35,7 @@ def jitterImage(image):
     return image_out.astype('uint8')
 
 
-def translateImage(image, range = 5, prob=np.random.uniform()):
+def translateImage(image, range = v.TRANSLATE_RANGE, prob=np.random.uniform()):
     rows, cols = image.shape
 
     tr_x = range*prob-range/2
@@ -46,7 +47,7 @@ def translateImage(image, range = 5, prob=np.random.uniform()):
     return image
 
 
-def shearImage(image, range = 10, prob=np.random.uniform()):
+def shearImage(image, range = v.SHEAR_RANGE, prob=np.random.uniform()):
     rows, cols = image.shape    
 
     pts1 = np.float32([[5,5],[20,5],[5,20]])
