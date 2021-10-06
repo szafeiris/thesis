@@ -146,7 +146,7 @@ def augmentationShearTest():
                                               resizeDim=v.RESIZE_DIM
                                             )
     pimage = np.asarray(pimage)
-    aimage = augmentation.shearImage(pimage, prob=np.random.choice(v.TRANSLATE_PROBS))
+    aimage = augmentation.shearImage(pimage, prob=np.random.choice(v.SHEAR_PROBS))
 
     if np.array_equal(pimage, aimage):
         fTest(testname, f"Original image have not been altered")
