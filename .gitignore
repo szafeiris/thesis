@@ -33,5 +33,6 @@ thesis.code-workspace
 /documents/*
 /models_results/*
 /papers/*
+/notebooks/*
 
 /data/*
