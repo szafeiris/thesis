@@ -181,6 +181,118 @@ class Model3D:
             hist = self.__trainGenModel(dataGenerator, validationData)
 
         return hist
+
+    def evaluate(self, X, Y):
+        if self.trainParameters.useGPU:
+            with tf.device('/gpu:0'):
+                return model.evaluate(X, Y, batch_size=self.hyperparameters.batchSize)
+        return model.evaluate(X, Y, batch_size=self.hyperparameters.batchSize)
+    
+    def evaluateGenerator(self, dataGenerator):
+        if self.trainParameters.useGPU:
+            with tf.device('/gpu:0'):
+                return model.evaluate(dataGenerator, batch_size=self.hyperparameters.batchSize)
+        return model.evaluate(dataGenerator, batch_size=self.hyperparameters.batchSize)
+
+    def test(self, X, Y, saveResults=False):
+        # Generate predictions (probabilities)
+        predictions = []
+        if self.trainParameters.useGPU:
+            with tf.device('/gpu:0'):
+                for i in range(X_test.shape[0]):
+                    predictions.append(model.predict(np.expand_dims(X[i], axis=0)))
+        else:
+            for i in range(X_test.shape[0]):
+                    predictions.append(model.predict(np.expand_dims(X[i], axis=0)))
+
+        predictions = np.concatenate(np.asarray(predictions))
+        
+        predicted = np.argmax(predictions, axis=1)
+        real = np.argmax(Y, axis=1)
+
+        #print('Predicted labels', predicted)
+        #print('Actual    labels', real)
+
+        confusionMatrix = confusion_matrix(real, predicted)
+        #print('Confusion matrix: ', confusionMatrix)
+        plt.figure()
+        sn.set(font_scale=1.4) # for label size
+        sn.heatmap(pd.DataFrame(confusionMatrix, range(2), range(2)), annot=True, annot_kws={"size": 16}, cmap="YlGnBu") # font size
+        plt.savefig(model_folder + model_name + '_confusion_matrix_heatmap.png')
+        plt.show()
+
+        TN, FP, FN, TP = confusionMatrix.ravel()
+
+        # Sensitivity, hit rate, recall, or true positive rate
+        TPR = TP/(TP+FN)
+
+        # Specificity or true negative rate
+        TNR = TN/(TN+FP)
+
+        # Precision or positive predictive value
+        PPV = TP/(TP+FP)
+
+        # Negative predictive value
+        NPV = TN/(TN+FN)
+
+        # Fall out or false positive rate
+        FPR = FP/(FP+TN)
+
+        # False negative rate
+        FNR = FN/(TP+FN)
+
+        # False discovery rate
+        FDR = FP/(TP+FP)
+
+        # Overall accuracy for each class
+        ACC = (TP+TN)/(TP+FP+FN+TN)
+
+        # F1-score
+        F1Score = 2*TP/(2*TP+FP+FN)
+
+        # print('Classes', classes)
+        # print('Acuracy :', ACC)
+        # print('Sensitivity :', TPR)
+        # print('Specificity :', TNR)
+        # print('Precision :', PPV)
+        # print('F1-score :', F1Score)
+        # print('FP: ', FP)
+        # print('FN: ', FN)
+        # print('TP: ', TP)
+        # print('TN: ', TN)
+        # print('\n\n')
+
+        report = classification_report(real, predicted)
+        with open(model_folder + model_name + '_classification_report.txt','w') as repfile:
+          repfile.write(report)
+        print(report)
+
+
+        # Compute ROC curve and ROC area
+        fpr, tpr, _ = roc_curve(Y_test[:, 0], predictions[:, 0])
+        #roc_auc = auc(fpr, tpr)
+        roc_auc = roc_auc_score(predicted, real)
+
+        # Plot ROC curve
+        plt.style.use('seaborn')
+        plt.figure()
+        plt.plot(fpr, tpr, label=f'ROC curve (area = {roc_auc})')
+
+
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver Operating Characteristic curve')
+        plt.legend(loc="lower right")
+        plt.savefig(model_folder + model_name + '_roc.png')
+        plt.show()
+
+        
+  
+    def testGenerator(self, dataGenerator, saveResults=False):
+        pass
     
     def saveModelWeights(self, path=None):
         self.model.save_weights(self.weightsFile if path is None else path)
