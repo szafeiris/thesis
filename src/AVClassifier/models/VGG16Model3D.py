@@ -29,7 +29,7 @@ class VGG16Model3D:
         self.testResults = {}
         
         # Create paths if they not exist
-        self.modelPath = f"{v.MODELS_DATA_PATH}{modelName}/"
+        self.modelPath = f"{v.MODELS_DATA_PATH}{self.modelName}/"
         if not os.path.exists(self.modelPath):
             os.mkdir(self.modelPath)
 
