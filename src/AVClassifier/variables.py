@@ -24,13 +24,14 @@ DROPOUT_PROBS = [0.5, 0.5]
 LEARNING_RATE = 0.00001
 DECAY =  1e-6
 LOSS_FUN = 'categorical_crossentropy'
-INPUT_DATA_SHAPE_3D = (40, 224, 224, 1)
+VGG16_3D_INPUT_DATA_SHAPE = (40, 224, 224, 1)
 
 TRAIN_SHUFFLE = True
 USE_MP = False
 WORKERS = 6
 USE_GPU = True
 VERBOSE = 1
+SAVE_FIGURES = True
 
 ## Data variables
 TRAIN_RATIO = 0.7
