@@ -28,6 +28,7 @@ MANIFEST
 
 # Workspace data
 thesis.code-workspace
+.vscode/*
 
 # Thesis related data
 /documents/*
